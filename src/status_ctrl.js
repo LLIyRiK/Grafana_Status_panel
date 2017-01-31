@@ -27,6 +27,20 @@ export class StatusPluginCtrl extends MetricsPanelCtrl {
   }
 
   postRefresh() {
+    //generate alias from query string
+    _.each(this.panel.targets, (target) => {
+      switch ((this.datasource || {meta: {}}).meta.id) {
+        case "graphite":
+          let matchArgs = target.target
+                  .replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg,'')
+                  .match(/alias\s*[^\(]*\(\s*([^]*)\)/m) || [];
+          let args = (matchArgs[1] || "").replace(/\((.+)\)/g, "").split(/,/) || [];
+          target.alias = args[1] ? args[1].replace(/'/g, "") : undefined;
+          break;
+      }
+
+    });
+
     this.measurements = _.filter(this.panel.targets, (target) => {
       return target.alias && !target.hide;
     });
