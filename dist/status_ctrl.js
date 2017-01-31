@@ -93,6 +93,17 @@ System.register(["app/plugins/sdk", "app/plugins/panel/graph/legend", "app/plugi
           value: function postRefresh() {
             var _this2 = this;
 
+            //generate alias from query string
+            _.each(this.panel.targets, function (target) {
+              switch (_this2.panel.datasource) {
+                case "Grafite":
+                  var matchArgs = target.target.replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg, '').match(/alias\s*[^\(]*\(\s*([^]*)\)/m) || [];
+                  var args = (matchArgs[1] || "").replace(/\((.+)\)/g, "").split(/,/) || [];
+                  target.alias = args[1] ? args[1].replace(/'/g, "") : undefined;
+                  break;
+              }
+            });
+
             this.measurements = _.filter(this.panel.targets, function (target) {
               return target.alias && !target.hide;
             });
